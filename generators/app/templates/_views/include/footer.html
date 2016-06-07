@@ -1,0 +1,19 @@
+<footer class="footer">
+    页面尾部
+</footer>
+{% if env == 'development' %}
+  <script>
+      var require = {
+          baseUrl: _globle.staticBaseUrl + '/js'
+      }
+  </script>
+  <script type="text/javascript" src="/js/libs/require.js"></script>
+  {% for item in jsArray %}
+    <script type="text/javascript" src="##staticBaseUrl##/js/##item##.js"></script>
+  {% endfor %}
+{% else %}
+  <script type="text/javascript" src="##staticBaseUrl##/js/project/common.js"></script>
+  {% for item in distJs %}
+    <script type="text/javascript" src="##staticBaseUrl##/js/##item##.js"></script>
+  {% endfor %}
+{% endif %}

@@ -1,0 +1,10 @@
+{
+    "testing": {
+        "apiUrl": "http://api.testing.xxx.com/",
+        "staticBaseUrl": "http://static.testing.xxx.com/"
+    },
+    "production": {
+        "apiUrl": "http://api.production.xxx.com/",
+        "staticBaseUrl": "http://static.production.xxx.com/",
+    }
+}
