@@ -1,0 +1,17 @@
+{
+    "testing": {
+        "apiUrl": "http://storeapi.dev.didatrip.com/",
+        "baseUrl": "",
+        "staticJsUrl": "/js"
+    },
+    "simulation": {
+        "apiUrl": "http://pcapi.dev.sao.cn/",
+        "baseUrl": "http://static.dev.saolife.com/www/store/dist",
+        "staticJsUrl": "http://static.dev.saolife.com/www/store/dist/js"
+    },
+    "production": {
+        "apiUrl": "http://pcapi.sao.cn/",
+        "baseUrl": "https://staticcdn.luojilab.com/www/store/dist",
+        "staticJsUrl": "https://staticcdn.luojilab.com/www/store/dist/js"
+    }
+}

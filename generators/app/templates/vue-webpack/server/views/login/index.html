@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+    {% if env == 'production' %}
+        <link rel="stylesheet" href="dist/0.8711882ec48e1d0506d9.hot-update.js">
+    {% endif %}
+</head>
+<body>
+    <app></app>
+    <script src="dist/login.4fecefc62db9742ac856.js"></script>
+    {% if env != "production" and reload == true %}
+        <script src="/reload/reload.js"></script>
+    {% endif %}
+</body>
+</html>
+
+

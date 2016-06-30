@@ -1,0 +1,7 @@
+{
+    "development": {
+        "apiUrl": "http://112.126.82.99:8080/", //storeapi.dev.didatrip.com develop.pc.shzf.dev.com
+        "baseUrl": "",
+        "staticJsUrl": "/js"
+    }
+}

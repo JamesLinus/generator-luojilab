@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>example - page1</title>
+    ## env ##
+    {% if env == 'production' %}
+        <!--covInject-style-here-->
+    {% endif %}
+</head>
+<body>
+    <app></app>
+    <!--covInject-script-here-->
+    {% if env != "production" and reload == true %}
+        <script src="/reload/reload.js"></script>
+    {% endif %}
+</body>
+</html>
+
+
