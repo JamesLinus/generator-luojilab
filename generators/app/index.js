@@ -1,6 +1,8 @@
 var yeoman = require('yeoman-generator'),
     chalk = require('chalk'),
     yosay = require('yosay'),
+    path = require('path'),
+    glob = require('glob'),
     _s = require('underscore.string');
 
 var luojilabGenerators = yeoman.Base.extend({
@@ -8,24 +10,31 @@ var luojilabGenerators = yeoman.Base.extend({
     initializing: function() {
         // this.pkg = require('../package.json');
     },
+    constructor: function() {
+        yeoman.Base.apply(this, arguments);
+        // add option to skip install
+        this.option('skip-install');
+    },
 
     // 提示
-    prompting: function() {
-        var done = this.async();
+    prompting: {
+        say: function() {
+            console.log(this.options['skip-install']);
+            this.log(yosay(chalk.yellow.bold('Welcome to ') +
+                chalk.magenta("luojilab-workflow") +
+                chalk.yellow.bold(' Yeoman generator,') +
+                chalk.yellow.bold('More configs in ') +
+                chalk.red('`.luojilabrc`')));
 
-        this.log(yosay(chalk.yellow.bold('Welcome to ') +
-            chalk.magenta("luojilab-workflow") +
-            chalk.yellow.bold(' Yeoman generator,') +
-            chalk.yellow.bold('More configs in ') +
-            chalk.red('`.luojilabrc`')));
+            this.log(chalk.magenta('开始配置工作流:'));
+        },
+        basic: function() {
+            var done = this.async();
 
-        this.log(chalk.magenta('开始配置工作流:'));
-
-        var prompts = [{
+            var prompts = [{
                 name: 'projectName',
                 message: '项目名: ',
-                default: 'project-xxx',
-                store: true
+                default: 'project-xxx'
             }, {
                 name: 'version',
                 message: '版本号: ',
@@ -33,88 +42,138 @@ var luojilabGenerators = yeoman.Base.extend({
             }, {
                 name: 'authorName',
                 message: '作者: ',
-                default: 'author',
-                store: true
-            },
-            // {
-            //
-            //     type: 'checkbox',
-            //     name: 'features',
-            //     message: '▬▬▬▬ 选择更多功能 <空格键> ▬▬▬▬',
-            //     choices: [{
-            //         name: '开启: 文件 Reversion 支持      // js文件采用 MD5 新文件名',
-            //         value: 'includeReversion',
-            //         checked: true
-            //     }]
-            // },
-            {
-                type: 'confirm',
-                name: 'needNpmInstall',
-                message: chalk.green('配置完成, 项目创建成功!') +
-                    '\n  是否自动执行 ' +
-                    chalk.yellow('`npm install & npm run zip`') +
-                    ' ?',
-                store: true
-            }
-        ];
+                default: 'author'
+            }];
 
-
-        this.prompt(prompts, function(props) {
-            for (var prop in props) {
-                if (props.hasOwnProperty(prop)) {
-                    this[prop] = props[prop];
+            this.prompt(prompts, function(props) {
+                for (var prop in props) {
+                    if (props.hasOwnProperty(prop)) {
+                        this[prop] = props[prop];
+                    }
                 }
+                this.options.projectName = _s.slugify(props.projectName);
+                var features = props.features;
+
+                function hasFeature(feat) {
+                    return features.indexOf(feat) !== -1;
+                }
+                // include gulp config
+                // this.includeRem = hasFeature('includeRem');
+                // this.includeWebp = hasFeature('includeWebp');
+                done();
+            }.bind(this));
+        },
+        dir: function() {
+
+            if (this.options.createDirectory !== undefined) {
+                return true;
             }
 
-            this.projectName = _s.slugify(props.projectName);
-            var features = props.features;
+            var done = this.async();
+            var prompt = [{
+                type: 'confirm',
+                name: 'createDirectory',
+                message: 'Would you like to create a new directory for your project?'
+            }];
 
-            function hasFeature(feat) {
-                return features.indexOf(feat) !== -1;
+            this.prompt(prompt, function(response) {
+                this.options.createDirectory = response.createDirectory;
+                done();
+            }.bind(this));
+        },
+        dirname: function() {
+
+            if (!this.options.createDirectory || this.options.dirname) {
+                return true;
             }
-            // include gulp config
-            // this.includeLivereload = hasFeature('includeLivereload');
-            // this.includeRem = hasFeature('includeRem');
-            // this.includeWebp = hasFeature('includeWebp');
-            // this.includeChanged = hasFeature('includeChanged');
-            // this.includeReversion = _s.classify(hasFeature('includeReversion')).toLowerCase();
-            done();
-        }.bind(this));
+
+            var done = this.async();
+            var prompt = [{
+                type: 'input',
+                name: 'dirname',
+                message: 'Enter directory name'
+            }];
+
+            this.prompt(prompt, function(response) {
+                this.options.dirname = response.dirname;
+                done();
+            }.bind(this));
+        },
+        type: function() {
+
+            if (this.options.node || this.options.static) {
+                return true;
+            }
+
+            var done = this.async();
+            var prompt = [{
+                type: 'list',
+                name: 'type',
+                message: 'Choose which way to build your project:',
+                choices: [
+                    'Front and back separation',
+                    'Front'
+                ]
+            }];
+
+            this.prompt(prompt, function(responses) {
+                this.options.node = responses.type.match(/^Front$/i) === null;
+                done();
+            }.bind(this));
+        },
+        type_separation: function() {
+            if (this.options.node) {
+                var done = this.async();
+                var prompt = [{
+                    type: 'list',
+                    name: 'type_separation',
+                    message: 'Enter directory name',
+                    choices: [
+                        'express + require + gulp + webpack',
+                        'vue + vue-route + webpack'
+                    ]
+                }];
+
+                this.prompt(prompt, function(responses) {
+                    this.options.express = responses.type_separation.match(/^express/i) !== null;
+                    this.options.vue = responses.type_separation.match(/^vue/i) !== null;
+                    done();
+                }.bind(this));
+            }
+        },
+        type_front: function() {
+            if (!this.options.node) {
+                console.log('type_front');
+                //TODO @lvjinlong
+            }
+        }
     },
+
     writing: function() {
+        console.log(this.options);
 
-        this.directory('_tasks', '_tasks');
-        this.directory('_views', 'views');
-        this.directory('_config', 'config');
-        this.directory('_middleware', 'middleware');
-        this.directory('_model', 'model');
-        this.directory('_routes', 'routes');
-        this.directory('_public', 'public');
+        // create directory
+        if (this.options.createDirectory) {
+            this.destinationRoot(this.options.dirname);
+        }
 
+        // express separation
+        if (this.options.node && this.options.express) {
+            this.sourceRoot(path.join(__dirname, 'templates', 'express'));
+            glob.sync('**', {
+                cwd: this.sourceRoot()
+            }).map(function(file) {
+                this.template(file, file.replace(/^_/, ''));
+            }, this);
+        }
 
-        this.copy('_app.js', 'app.js');
-        this.copy('_package.json', 'package.json');
-        this.copy('_ecosystem.json', 'ecosystem.json');
-        this.copy('_.luojilabrc', '.luojilabrc');
-        this.copy('_.gitignore', '.gitignore');
-
-        //http://editorconfig.org/
-        this.copy('_.editorconfig', '.editorconfig');
+        // vue separation
+        //TODO @longjw
 
     },
     // 4. 目录建立完成后
     end: function() {
-        this.installDependencies({
-            skipInstall: !this.needNpmInstall,
-            callback: function() {
-                if (this.needNpmInstall) {
-                    this.spawnCommand('npm', ['run', 'zip']);
-                } else {
-                    this.log(chalk.green('工作流初始化完毕, 请 `npm install` 安装依赖, 然后执行 `npm run zip` 打包压缩后'));
-                }
-
-            }.bind(this)
-        });
+        if (!this.options['skip-install']) this.npmInstall();
     }
 });
 
