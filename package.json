@@ -23,7 +23,9 @@
         "separate",
         "node",
         "gulp",
-        "workflow"
+        "workflow",
+        "vue",
+        "webpack"
     ],
     "dependencies": {
         "yeoman-generator": "^0.22.5",
