@@ -170,13 +170,19 @@ var luojilabGenerators = yeoman.Base.extend({
         // vue separation
         if (this.options.node && this.options.vue) {
             this.sourceRoot(path.join(__dirname, 'templates', 'vue-webpack'));
-            glob.sync('**', {
+
+            glob.sync('*.*', {
                 cwd: this.sourceRoot()
             }).map(function(file) {
-                this.template(file, file.replace(/^_/, ''));
+                this.copy(file, file.replace(/^_/, ''));
+            }, this);
+
+            glob.sync('*/', {
+                cwd: this.sourceRoot()
+            }).map(function(file) {
+                this.directory(file, file.replace(/^_/, ''));
             }, this);
         }
-
     },
     // 4. 目录建立完成后
     end: function() {

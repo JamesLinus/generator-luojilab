@@ -1,8 +1,8 @@
 {
-  "name": "generator-luojilab-vue-webpack",
-  "version": "1.0.0",
+  "name": "<%= projectName %>",
+  "version": "<%= version %>",
   "description": "generator-luojilab-vue-webpack",
-  "author": "Awe longjiawen@luojilab.com",
+  "author": "<%= authorName %>",
   "main": "app.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development supervisor -w server,app.js app",
